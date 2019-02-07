@@ -9,6 +9,7 @@
 //#define MODE_N64
 //#define MODE_SNES
 //#define MODE_NES
+//#define MODE_CLASSICCONTROLLER
 // Bridge one of the analog GND to the right analog IN to enable your selected mode
 //#define MODE_DETECT
 // ---------------------------------------------------------------------------------
@@ -28,6 +29,7 @@
 #define MODEPIN_SNES 0
 #define MODEPIN_N64  1
 #define MODEPIN_GC   2
+#define MODEPIN_CLASSICCONTROLLER 3
 
 #define N64_PIN        2
 #define N64_PREFIX     9
@@ -42,6 +44,11 @@
 #define GC_PIN        5
 #define GC_PREFIX    25
 #define GC_BITCOUNT  64
+
+#define CLASSICCONTROLLER_PIN        7
+#define CLASSICCONTROLLER_PREFIX    16
+#define CLASSICCONTROLLER_BITCOUNT  48
+
 
 #define ZERO  '\0'  // Use a byte value of 0x00 to represent a bit with value 0.
 #define ONE    '1'  // Use an ASCII one to represent a bit with value 1.  This makes Arduino debugging easier.
@@ -219,6 +226,13 @@ inline void loop_NES()
     sendRawData( 0 , NES_BITCOUNT );
 }
 
+inline void loop_CLASSICCONTROLLER()
+{
+    noInterrupts();
+    read_oneWire< CLASSICCONTROLLER_PIN >( CLASSICCONTROLLER_PREFIX + CLASSICCONTROLLER_BITCOUNT );
+    interrupts();
+    sendRawData( CLASSICCONTROLLER_PREFIX , CLASSICCONTROLLER_BITCOUNT );
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Arduino sketch main loop definition.
 void loop()
@@ -241,5 +255,7 @@ void loop()
     } else {
         loop_NES();
     }
+#elif defined MODE_CLASSICCONTROLLER
+    loop_CLASSICCONTROLLER();
 #endif
 }
